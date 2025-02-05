@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@drawable/tiled_grass_background"
     tools:context=".fragment.FirstFragment">
 
     <!-- Main Layout Container -->
@@ -20,11 +20,14 @@
             android:id="@+id/exOneAppBarLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:theme="@style/Theme.AppCompat">
+            android:background="@android:color/transparent"
+            android:elevation="0dp"
+            app:elevation="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 android:orientation="vertical"
                 android:padding="14dp">
 
@@ -32,8 +35,9 @@
                     android:id="@+id/exOneYearText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
                     android:textColor="@color/black"
-                    android:textSize="24sp"
+                    android:textSize="14sp"
                     tools:text="2019" />
 
                 <TextView
@@ -41,9 +45,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:singleLine="true"
-                    android:fontFamily="sans-serif-light"
                     android:textColor="@color/black"
-                    android:textSize="32sp"
+                    android:textSize="20sp"
                     android:ellipsize="marquee"
                     tools:text="April" />
             </LinearLayout>
@@ -67,6 +70,7 @@
                 android:id="@+id/calendar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
                 app:cv_dayViewResource="@layout/calendar_2_calendar_day" />
 
         </FrameLayout>
@@ -77,8 +81,9 @@
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
+        android:layout_gravity="bottom|center"
         android:layout_margin="16dp"
+        android:backgroundTint="@color/powder_blue"
         app:srcCompat="@drawable/baseline_add_24" />
 
 </FrameLayout>

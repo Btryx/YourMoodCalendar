@@ -42,6 +42,15 @@ class SecondFragmentViewModel @Inject constructor(private val moodRepository: Mo
         viewModelScope.launch {
             moodRepository.insertMood(mood)
         }
+        viewModelScope.launch {
+            moodRepository.insertMood(mood)
+        }
+        viewModelScope.launch {
+            moodRepository.insertMood(mood)
+        }
+        viewModelScope.launch {
+            moodRepository.insertMood(mood)
+        }
     }
 
     fun getMoodForToday(): MutableLiveData<Mood> {

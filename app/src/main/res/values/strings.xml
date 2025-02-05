@@ -2,7 +2,7 @@
     <string name="app_name">Your Mood Calendar</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">Your Mood Calendar</string>
+    <string name="first_fragment_label">Mood Calendar</string>
     <string name="second_fragment_label">How do you feel today?</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
