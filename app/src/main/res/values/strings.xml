@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Your Mood Calendar</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">Your Mood Calendar</string>
+    <string name="second_fragment_label">How do you feel today?</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="lorem_ipsum">
+This fragment is going to be the calendar made with that calendar library. Each day field is going to display on of those kenney emojies.
+        THe plus button will open the second fragment, which will be the "Add mode" button for the day. Under the calendar,
+        if you click on one of the faces, it will show that days mood and description. Under that there will always be visible that months statistics:
+        These statistics will show how many emotions you had that month, and next to it, a little indicator that shows the difference from the previous month.
+        The database: Mood table, three columns: date, mood, description. The mood will be an enum from which the user can choose: happy, sad, angry,
+        confident, tired, awesome. The description is a string. the date should probably be a long. Each emotion will have a face and color given.
+        This face will appear in the calendar when you log it. If there is already a log for today, clicking the plus button will open those data, and you can edit it.
+    </string>
+    <string name="describe_your_mood">How was your day?</string>
+    <string name="save_mood">Save</string>
+</resources>
