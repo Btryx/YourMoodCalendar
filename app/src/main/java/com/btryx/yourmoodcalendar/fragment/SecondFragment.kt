@@ -12,6 +12,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.btryx.yourmoodcalendar.database.entities.Mood
 import com.btryx.yourmoodcalendar.databinding.FragmentSecondBinding
 import com.btryx.yourmoodcalendar.viewmodel.SecondFragmentViewModel
@@ -75,7 +76,11 @@ class SecondFragment : Fragment() {
         // Save button click listener
         binding.buttonSave.setOnClickListener {
             if (validateInput()) {
-                viewModel.createMoodForToday()
+                viewModel.createMoodForToday {
+                    requireActivity().runOnUiThread {
+                        findNavController().navigateUp()
+                    }
+                }
             }
         }
     }
@@ -84,10 +89,6 @@ class SecondFragment : Fragment() {
         return when {
             binding.spinnerMood.selectedItemPosition == AdapterView.INVALID_POSITION -> {
                 Toast.makeText(requireContext(), "Please select a mood", Toast.LENGTH_SHORT).show()
-                false
-            }
-            binding.editTextDescription.text.isNullOrBlank() -> {
-                binding.editTextDescription.error = "Description cannot be empty"
                 false
             }
             else -> true

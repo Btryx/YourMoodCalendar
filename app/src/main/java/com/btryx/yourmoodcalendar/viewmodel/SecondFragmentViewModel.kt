@@ -31,25 +31,18 @@ class SecondFragmentViewModel @Inject constructor(private val moodRepository: Mo
         _description.value = desc
     }
 
-    fun createMoodForToday() {
+    fun createMoodForToday(onCompletion: (() -> Unit)? = null) {
         val today = LocalDate.now()
         val date = TimeUtils.localDateToString(today)
         val mood = Mood(
             day = date,
-            description = description.value!!,
-            type = mood.value!!
+            description = description.value ?: "",
+            type = mood.value ?: Mood.MoodType.FINE // Set a default if null ( shouldn't happen)
         )
+
         viewModelScope.launch {
             moodRepository.insertMood(mood)
-        }
-        viewModelScope.launch {
-            moodRepository.insertMood(mood)
-        }
-        viewModelScope.launch {
-            moodRepository.insertMood(mood)
-        }
-        viewModelScope.launch {
-            moodRepository.insertMood(mood)
+            onCompletion?.invoke()
         }
     }
 
