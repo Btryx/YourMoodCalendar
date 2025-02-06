@@ -1,29 +1,33 @@
 package com.btryx.yourmoodcalendar.fragment
 
-import android.R
+import com.btryx.yourmoodcalendar.R
+import android.app.Dialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import com.btryx.yourmoodcalendar.database.entities.Mood
 import com.btryx.yourmoodcalendar.databinding.FragmentSecondBinding
 import com.btryx.yourmoodcalendar.viewmodel.SecondFragmentViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.YearMonth
+import java.util.Locale
 
 @AndroidEntryPoint
-class SecondFragment : Fragment() {
+class SecondFragment : DialogFragment() {
 
     private var _binding: FragmentSecondBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel: SecondFragmentViewModel by viewModels()
 
     override fun onCreateView(
@@ -37,26 +41,62 @@ class SecondFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Setup mood dropdown
+        setupMoodDropdown()
+        setupDescriptionListener()
+        setupSaveButton()
+        observeMoodData()
+    }
+
+    private fun setupMoodDropdown() {
         val moodTypes = Mood.MoodType.values()
-        val adapter = ArrayAdapter(
-            requireContext(),
-            R.layout.simple_spinner_item,
-            moodTypes.map { it.name }
-        )
-        adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
-        binding.spinnerMood.adapter = adapter
-
-        // Listen to mood selection
-        binding.spinnerMood.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                viewModel.setMood(moodTypes[position])
+        val moodLabels = moodTypes.map {
+            when (it) {
+                Mood.MoodType.HAPPY -> "Happy"
+                Mood.MoodType.SAD -> "Sad"
+                Mood.MoodType.ANGRY -> "Angry"
+                Mood.MoodType.CONFIDENT -> "Confident"
+                Mood.MoodType.FINE -> "Fine"
+                Mood.MoodType.BORED -> "Bored"
+                Mood.MoodType.TIRED -> "Tired"
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        // Listen to description changes
+        val adapter = object : ArrayAdapter<String>(
+            requireContext(),
+            R.layout.mood_dropdown_item,
+            moodLabels
+        ) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = convertView ?: LayoutInflater.from(context)
+                    .inflate(R.layout.mood_dropdown_item, parent, false)
+
+                val textView = view.findViewById<TextView>(R.id.text)
+                val imageView = view.findViewById<ImageView>(R.id.icon)
+
+                textView.text = moodLabels[position]
+                imageView.setImageResource(when (moodTypes[position]) {
+                    Mood.MoodType.HAPPY -> R.drawable.happy
+                    Mood.MoodType.SAD -> R.drawable.sad
+                    Mood.MoodType.ANGRY -> R.drawable.angry
+                    Mood.MoodType.CONFIDENT -> R.drawable.confident
+                    Mood.MoodType.FINE -> R.drawable.fine
+                    Mood.MoodType.BORED -> R.drawable.bored
+                    Mood.MoodType.TIRED -> R.drawable.tired
+                })
+
+                return view
+            }
+        }
+
+        (binding.moodInputLayout.editText as? AutoCompleteTextView)?.let { autoCompleteTextView ->
+            autoCompleteTextView.setAdapter(adapter)
+            autoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
+                viewModel.setMood(moodTypes[position])
+            }
+        }
+    }
+
+    private fun setupDescriptionListener() {
         binding.editTextDescription.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -64,34 +104,43 @@ class SecondFragment : Fragment() {
                 s?.toString()?.let { viewModel.setDescription(it) }
             }
         })
+    }
 
-        viewModel.getMoodForToday().observe(viewLifecycleOwner) { mood ->
-            if (mood != null) {
-                val moodPosition = Mood.MoodType.entries.toTypedArray().indexOfFirst { it == mood.type }
-                binding.spinnerMood.setSelection(moodPosition)
-                binding.editTextDescription.setText(mood.description)
-            }
-        }
-
-        // Save button click listener
+    private fun setupSaveButton() {
         binding.buttonSave.setOnClickListener {
             if (validateInput()) {
                 viewModel.createMoodForToday {
-                    requireActivity().runOnUiThread {
-                        findNavController().navigateUp()
-                    }
+                    (requireParentFragment() as? FirstFragment)
+                        ?.viewModel
+                        ?.fetchMoodsByMonth(YearMonth.now())
+                    dismiss()
                 }
             }
         }
     }
 
+    private fun observeMoodData() {
+        viewModel.getMoodForToday().observe(viewLifecycleOwner) { mood ->
+            if (mood != null) {
+                (binding.moodInputLayout.editText as? AutoCompleteTextView)?.setText(
+                    mood.type.name.capitalize(), false
+                )
+                binding.editTextDescription.setText(mood.description)
+            }
+        }
+    }
+
     private fun validateInput(): Boolean {
+        val moodText = (binding.moodInputLayout.editText as? AutoCompleteTextView)?.text
         return when {
-            binding.spinnerMood.selectedItemPosition == AdapterView.INVALID_POSITION -> {
-                Toast.makeText(requireContext(), "Please select a mood", Toast.LENGTH_SHORT).show()
+            moodText.isNullOrEmpty() -> {
+                binding.moodInputLayout.error = "Please select a mood"
                 false
             }
-            else -> true
+            else -> {
+                binding.moodInputLayout.error = null
+                true
+            }
         }
     }
 

@@ -3,7 +3,7 @@
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">Mood Calendar</string>
-    <string name="second_fragment_label">How do you feel today?</string>
+    <string name="second_fragment_label">How do you feel?</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
@@ -18,4 +18,5 @@ This fragment is going to be the calendar made with that calendar library. Each 
     </string>
     <string name="describe_your_mood">How was your day?</string>
     <string name="save_mood">Save</string>
+    <string name="how_are_you_today">How are you today?</string>
 </resources>

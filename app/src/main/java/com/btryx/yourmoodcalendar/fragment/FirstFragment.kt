@@ -37,7 +37,7 @@ class FirstFragment : Fragment() {
     private var _binding: FragmentFirstBinding? = null
     private val binding get() = _binding!!
     private val monthCalendarView: CalendarView get() = binding.calendar
-    private val viewModel: FirstFragmentViewModel by viewModels()
+    val viewModel: FirstFragmentViewModel by viewModels()
 
     private var happyDays: List<LocalDate> = emptyList()
     private var sadDays: List<LocalDate> = emptyList()
@@ -60,7 +60,7 @@ class FirstFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.fab.setOnClickListener {
-            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+            SecondFragment().show(childFragmentManager, "AddMoodDialog")
         }
 
         val daysOfWeek = daysOfWeek(firstDayOfWeek = DayOfWeek.MONDAY)
