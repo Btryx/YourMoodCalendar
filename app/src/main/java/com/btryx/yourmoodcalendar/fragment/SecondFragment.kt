@@ -8,6 +8,8 @@ import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.ImageView
@@ -30,7 +32,7 @@ class SecondFragment : Fragment() {
     private var _binding: FragmentSecondBinding? = null
     private val binding get() = _binding!!
     private val viewModel: SecondFragmentViewModel by viewModels()
-    val args: SecondFragmentArgs by navArgs()
+    private val args: SecondFragmentArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,10 +61,10 @@ class SecondFragment : Fragment() {
         val moodTypes = Mood.MoodType.entries.toTypedArray()
         val moodLabels = moodTypes.map { it.toLabel() }
 
-        if (TimeUtils.localDateToString(viewModel.selectedDate) != TimeUtils.localDateToString(LocalDate.now())) {
-            binding.editTextDescription.isEnabled = false
+        if (TimeUtils.localDateToString(args.selectedDate) != TimeUtils.localDateToString(LocalDate.now())) {
+            binding.moodInputLayout.isEnabled = false
         } else {
-            binding.editTextDescription.isEnabled = true
+            binding.moodInputLayout.isEnabled = true
         }
 
         val adapter = object : ArrayAdapter<String>(
@@ -93,7 +95,7 @@ class SecondFragment : Fragment() {
     }
 
     private fun setupDescriptionListener() {
-        if (TimeUtils.localDateToString(viewModel.selectedDate) != TimeUtils.localDateToString(LocalDate.now())) {
+        if (TimeUtils.localDateToString(args.selectedDate) != TimeUtils.localDateToString(LocalDate.now())) {
             binding.editTextDescription.isEnabled = false
         } else {
             binding.editTextDescription.isEnabled = true
@@ -108,29 +110,44 @@ class SecondFragment : Fragment() {
     }
 
     private fun setupSaveButton() {
-        if (TimeUtils.localDateToString(viewModel.selectedDate) != TimeUtils.localDateToString(LocalDate.now())) {
+        if (TimeUtils.localDateToString(args.selectedDate) != TimeUtils.localDateToString(LocalDate.now())) {
+            binding.dialogTitle.text = TimeUtils.localDateToPrettyString(args.selectedDate)
             binding.buttonSave.visibility = View.GONE
         } else {
             binding.buttonSave.setOnClickListener {
-                if (validateInput()) {
-                    viewModel.createMoodForToday {
-                        requireActivity().runOnUiThread {
-                            findNavController().navigateUp()
+                val scaleAnimation = AnimationUtils.loadAnimation(requireContext(), R.anim.bounce)
+                binding.buttonSave.startAnimation(scaleAnimation)
+                scaleAnimation.setAnimationListener(object : Animation.AnimationListener {
+                    override fun onAnimationStart(p0: Animation?) {
+                    }
+
+                    override fun onAnimationRepeat(p0: Animation?) {
+                    }
+
+                    override fun onAnimationEnd(p0: Animation?) {
+                        if (validateInput()) {
+                            viewModel.createMoodForToday {
+                                requireActivity().runOnUiThread {
+                                    findNavController().navigateUp()
+                                }
+                            }
                         }
                     }
-                }
+                })
             }
         }
     }
 
     private fun observeMoodData() {
-        viewModel.getMoodForDate().observe(viewLifecycleOwner) { mood ->
+        viewModel.getMoodForDate(args.selectedDate).observe(viewLifecycleOwner) { mood ->
             if (mood != null) {
                 (binding.moodInputLayout.editText as? AutoCompleteTextView)?.setText(
                     mood.type.name.lowercase()
                         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }, false
                 )
                 binding.editTextDescription.setText(mood.description)
+                viewModel.setMood(mood.type)
+                viewModel.setDescription(mood.description)
             }
         }
     }

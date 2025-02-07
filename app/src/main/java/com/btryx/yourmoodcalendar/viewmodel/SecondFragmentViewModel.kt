@@ -22,12 +22,6 @@ class SecondFragmentViewModel @Inject constructor(private val moodRepository: Mo
     private val _description = MutableLiveData<String>()
     val description: LiveData<String> get() = _description
 
-    var selectedDate: LocalDate = LocalDate.now()
-
-    fun setSelectedDate(date: LocalDate) {
-        selectedDate = date
-    }
-
     fun setMood(mood: Mood.MoodType) {
         _mood.value = mood
     }
@@ -51,9 +45,9 @@ class SecondFragmentViewModel @Inject constructor(private val moodRepository: Mo
         }
     }
 
-    fun getMoodForDate(): LiveData<Mood?> {
+    fun getMoodForDate(day: LocalDate): LiveData<Mood?> {
         val result = MutableLiveData<Mood>()
-        val date = TimeUtils.localDateToString(selectedDate)
+        val date = TimeUtils.localDateToString(day)
 
         viewModelScope.launch {
             val mood = moodRepository.getMoodByDate(date)

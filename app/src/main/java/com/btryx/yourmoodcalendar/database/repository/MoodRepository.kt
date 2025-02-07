@@ -12,8 +12,16 @@ class MoodRepository @Inject constructor(
         return moodDao.getByDate(day)
     }
 
+    suspend fun getMoodsByType(type: Mood.MoodType): List<Mood> {
+        return moodDao.getMoodsByType(type)
+    }
+
     suspend fun getMoodsByMonthAndType(month: String, type: Mood.MoodType): List<Mood> {
         return moodDao.getMoodsByMonthAndType(month, type)
+    }
+
+    suspend fun getAllMoods(): List<Mood> {
+        return moodDao.getAll()
     }
 
     suspend fun insertMood(mood: Mood) {

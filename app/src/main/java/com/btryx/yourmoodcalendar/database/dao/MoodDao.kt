@@ -31,6 +31,9 @@ interface MoodDao {
     @Query("SELECT * FROM mood WHERE SUBSTR(day, 6, 2) = :month and type = :type")
     suspend fun getMoodsByMonthAndType(month: String, type: Mood.MoodType): List<Mood>
 
+    @Query("SELECT * FROM mood WHERE type = :type")
+    suspend fun getMoodsByType(type: Mood.MoodType): List<Mood>
+
     @Query("SELECT * FROM mood")
-    fun getAll(): Flow<List<Mood>>
+    suspend fun getAll(): List<Mood>
 }

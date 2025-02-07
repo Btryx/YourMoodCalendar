@@ -29,4 +29,9 @@ object TimeUtils {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         return LocalDate.parse(dateString, formatter)
     }
+
+    fun localDateToPrettyString(date: LocalDate): String {
+        val formatter = DateTimeFormatter.ofPattern(" yyyy MMMM dd")
+        return date.format(formatter)
+    }
 }
