@@ -3,7 +3,7 @@
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">Mood Calendar</string>
-    <string name="second_fragment_label">How do you feel?</string>
+    <string name="second_fragment_label">Mood Calendar</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
@@ -16,6 +16,7 @@ This fragment is going to be the calendar made with that calendar library. Each 
         confident, tired, awesome. The description is a string. the date should probably be a long. Each emotion will have a face and color given.
         This face will appear in the calendar when you log it. If there is already a log for today, clicking the plus button will open those data, and you can edit it.
     </string>
+    <string name="describe_your_emotions">How are you feeling?</string>
     <string name="describe_your_mood">How was your day?</string>
     <string name="save_mood">Save</string>
     <string name="how_are_you_today">How are you today?</string>

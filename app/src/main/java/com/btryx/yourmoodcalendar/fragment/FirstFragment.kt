@@ -3,6 +3,7 @@ package com.btryx.yourmoodcalendar.fragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import android.view.View
@@ -37,7 +38,7 @@ class FirstFragment : Fragment() {
     private var _binding: FragmentFirstBinding? = null
     private val binding get() = _binding!!
     private val monthCalendarView: CalendarView get() = binding.calendar
-    val viewModel: FirstFragmentViewModel by viewModels()
+    private val viewModel: FirstFragmentViewModel by viewModels()
 
     private var happyDays: List<LocalDate> = emptyList()
     private var sadDays: List<LocalDate> = emptyList()
@@ -46,6 +47,12 @@ class FirstFragment : Fragment() {
     private var fineDays: List<LocalDate> = emptyList()
     private var boredDays: List<LocalDate> = emptyList()
     private var tiredDays: List<LocalDate> = emptyList()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val inflater = TransitionInflater.from(requireContext())
+        exitTransition = inflater.inflateTransition(R.transition.fade)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -60,7 +67,7 @@ class FirstFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.fab.setOnClickListener {
-            SecondFragment().show(childFragmentManager, "AddMoodDialog")
+            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
         }
 
         val daysOfWeek = daysOfWeek(firstDayOfWeek = DayOfWeek.MONDAY)

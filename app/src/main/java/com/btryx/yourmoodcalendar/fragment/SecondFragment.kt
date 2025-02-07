@@ -1,21 +1,20 @@
 package com.btryx.yourmoodcalendar.fragment
 
 import com.btryx.yourmoodcalendar.R
-import android.app.Dialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
-import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.btryx.yourmoodcalendar.database.entities.Mood
 import com.btryx.yourmoodcalendar.databinding.FragmentSecondBinding
 import com.btryx.yourmoodcalendar.viewmodel.SecondFragmentViewModel
@@ -24,11 +23,17 @@ import java.time.YearMonth
 import java.util.Locale
 
 @AndroidEntryPoint
-class SecondFragment : DialogFragment() {
+class SecondFragment : Fragment() {
 
     private var _binding: FragmentSecondBinding? = null
     private val binding get() = _binding!!
     private val viewModel: SecondFragmentViewModel by viewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val inflater = TransitionInflater.from(requireContext())
+        enterTransition = inflater.inflateTransition(R.transition.slide)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,18 +53,8 @@ class SecondFragment : DialogFragment() {
     }
 
     private fun setupMoodDropdown() {
-        val moodTypes = Mood.MoodType.values()
-        val moodLabels = moodTypes.map {
-            when (it) {
-                Mood.MoodType.HAPPY -> "Happy"
-                Mood.MoodType.SAD -> "Sad"
-                Mood.MoodType.ANGRY -> "Angry"
-                Mood.MoodType.CONFIDENT -> "Confident"
-                Mood.MoodType.FINE -> "Fine"
-                Mood.MoodType.BORED -> "Bored"
-                Mood.MoodType.TIRED -> "Tired"
-            }
-        }
+        val moodTypes = Mood.MoodType.entries.toTypedArray()
+        val moodLabels = moodTypes.map { it.toLabel() }
 
         val adapter = object : ArrayAdapter<String>(
             requireContext(),
@@ -74,15 +69,7 @@ class SecondFragment : DialogFragment() {
                 val imageView = view.findViewById<ImageView>(R.id.icon)
 
                 textView.text = moodLabels[position]
-                imageView.setImageResource(when (moodTypes[position]) {
-                    Mood.MoodType.HAPPY -> R.drawable.happy
-                    Mood.MoodType.SAD -> R.drawable.sad
-                    Mood.MoodType.ANGRY -> R.drawable.angry
-                    Mood.MoodType.CONFIDENT -> R.drawable.confident
-                    Mood.MoodType.FINE -> R.drawable.fine
-                    Mood.MoodType.BORED -> R.drawable.bored
-                    Mood.MoodType.TIRED -> R.drawable.tired
-                })
+                imageView.setImageResource(moodTypes[position].toDrawableResource())
 
                 return view
             }
@@ -110,10 +97,9 @@ class SecondFragment : DialogFragment() {
         binding.buttonSave.setOnClickListener {
             if (validateInput()) {
                 viewModel.createMoodForToday {
-                    (requireParentFragment() as? FirstFragment)
-                        ?.viewModel
-                        ?.fetchMoodsByMonth(YearMonth.now())
-                    dismiss()
+                    requireActivity().runOnUiThread {
+                        findNavController().navigateUp()
+                    }
                 }
             }
         }
@@ -123,7 +109,8 @@ class SecondFragment : DialogFragment() {
         viewModel.getMoodForToday().observe(viewLifecycleOwner) { mood ->
             if (mood != null) {
                 (binding.moodInputLayout.editText as? AutoCompleteTextView)?.setText(
-                    mood.type.name.capitalize(), false
+                    mood.type.name.lowercase()
+                        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }, false
                 )
                 binding.editTextDescription.setText(mood.description)
             }
@@ -141,6 +128,29 @@ class SecondFragment : DialogFragment() {
                 binding.moodInputLayout.error = null
                 true
             }
+        }
+    }
+
+    //Gets the drawable resource for each emotion. Format: MoodType.EMOTION -> drawable.emotion
+    fun Mood.MoodType.toDrawableResource(): Int {
+        val drawableName = name.lowercase()
+
+        return try {
+            R.drawable::class.java.getField(drawableName).getInt(null)
+        } catch (e: Exception) {
+            R.drawable.fine // Default
+        }
+    }
+
+    //Gets the label for each emotion. Format: MoodType.EMOTION -> Emotion
+    fun Mood.MoodType.toLabel(): String {
+        val drawableName = name.lowercase()
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
+
+        return try {
+            drawableName
+        } catch (e: Exception) {
+            "Fine" // Default
         }
     }
 
