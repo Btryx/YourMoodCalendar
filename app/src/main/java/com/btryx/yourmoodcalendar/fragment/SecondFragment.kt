@@ -15,11 +15,13 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.btryx.yourmoodcalendar.database.entities.Mood
 import com.btryx.yourmoodcalendar.databinding.FragmentSecondBinding
+import com.btryx.yourmoodcalendar.utils.TimeUtils
 import com.btryx.yourmoodcalendar.viewmodel.SecondFragmentViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import java.time.YearMonth
+import java.time.LocalDate
 import java.util.Locale
 
 @AndroidEntryPoint
@@ -28,6 +30,7 @@ class SecondFragment : Fragment() {
     private var _binding: FragmentSecondBinding? = null
     private val binding get() = _binding!!
     private val viewModel: SecondFragmentViewModel by viewModels()
+    val args: SecondFragmentArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +58,12 @@ class SecondFragment : Fragment() {
     private fun setupMoodDropdown() {
         val moodTypes = Mood.MoodType.entries.toTypedArray()
         val moodLabels = moodTypes.map { it.toLabel() }
+
+        if (TimeUtils.localDateToString(viewModel.selectedDate) != TimeUtils.localDateToString(LocalDate.now())) {
+            binding.editTextDescription.isEnabled = false
+        } else {
+            binding.editTextDescription.isEnabled = true
+        }
 
         val adapter = object : ArrayAdapter<String>(
             requireContext(),
@@ -84,21 +93,30 @@ class SecondFragment : Fragment() {
     }
 
     private fun setupDescriptionListener() {
-        binding.editTextDescription.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                s?.toString()?.let { viewModel.setDescription(it) }
-            }
-        })
+        if (TimeUtils.localDateToString(viewModel.selectedDate) != TimeUtils.localDateToString(LocalDate.now())) {
+            binding.editTextDescription.isEnabled = false
+        } else {
+            binding.editTextDescription.isEnabled = true
+            binding.editTextDescription.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) {
+                    s?.toString()?.let { viewModel.setDescription(it) }
+                }
+            })
+        }
     }
 
     private fun setupSaveButton() {
-        binding.buttonSave.setOnClickListener {
-            if (validateInput()) {
-                viewModel.createMoodForToday {
-                    requireActivity().runOnUiThread {
-                        findNavController().navigateUp()
+        if (TimeUtils.localDateToString(viewModel.selectedDate) != TimeUtils.localDateToString(LocalDate.now())) {
+            binding.buttonSave.visibility = View.GONE
+        } else {
+            binding.buttonSave.setOnClickListener {
+                if (validateInput()) {
+                    viewModel.createMoodForToday {
+                        requireActivity().runOnUiThread {
+                            findNavController().navigateUp()
+                        }
                     }
                 }
             }
@@ -106,7 +124,7 @@ class SecondFragment : Fragment() {
     }
 
     private fun observeMoodData() {
-        viewModel.getMoodForToday().observe(viewLifecycleOwner) { mood ->
+        viewModel.getMoodForDate().observe(viewLifecycleOwner) { mood ->
             if (mood != null) {
                 (binding.moodInputLayout.editText as? AutoCompleteTextView)?.setText(
                     mood.type.name.lowercase()
@@ -143,7 +161,7 @@ class SecondFragment : Fragment() {
     }
 
     //Gets the label for each emotion. Format: MoodType.EMOTION -> Emotion
-    fun Mood.MoodType.toLabel(): String {
+    private fun Mood.MoodType.toLabel(): String {
         val drawableName = name.lowercase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
 

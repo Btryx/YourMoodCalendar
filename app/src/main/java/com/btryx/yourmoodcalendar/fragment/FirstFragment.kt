@@ -67,7 +67,8 @@ class FirstFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.fab.setOnClickListener {
-            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+            val action = FirstFragmentDirections.actionFirstFragmentToSecondFragment(LocalDate.now())
+            findNavController().navigate(action)
         }
 
         val daysOfWeek = daysOfWeek(firstDayOfWeek = DayOfWeek.MONDAY)

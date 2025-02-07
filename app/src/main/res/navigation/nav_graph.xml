@@ -13,7 +13,11 @@
 
         <action
             android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
+            app:destination="@id/SecondFragment" >
+            <argument
+                android:name="selectedDate"
+                app:argType="java.time.LocalDate" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
