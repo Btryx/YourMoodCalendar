@@ -124,6 +124,7 @@ class FirstFragment : Fragment() {
     }
 
     private fun setupMoodCountView(month : YearMonth) {
+        //todo: it might be faster to just get it from the database, check this later
         val moods = listOf(
             Triple(this.happyDays.count { YearMonth.from(it).equals(month); }, binding.happyCardView, binding.happyCountText),
             Triple(this.fineDays.count{ YearMonth.from(it).equals(month); }, binding.fineCardView, binding.fineCountText),
@@ -258,6 +259,7 @@ class FirstFragment : Fragment() {
                     }
 
                     override fun onAnimationEnd(p0: Animation?) {
+                        //todo: send the month of the date to secondFragment, so we come back to right month
                         val action = FirstFragmentDirections.actionFirstFragmentToSecondFragment(date)
                         findNavController().navigate(action)
                     }
