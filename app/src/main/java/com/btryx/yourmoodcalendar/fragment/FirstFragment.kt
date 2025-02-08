@@ -67,11 +67,6 @@ class FirstFragment : Fragment() {
         return binding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        setupMoodCountView(YearMonth.now())
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -212,7 +207,7 @@ class FirstFragment : Fragment() {
                 }
                 sadDays.contains(date) -> {
                     textView.setBackgroundResource(R.drawable.sad)
-                }
+            }
                 angryDays.contains(date) -> {
                     textView.setBackgroundResource(R.drawable.angry)
                 }
