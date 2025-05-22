@@ -4,10 +4,13 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.transition.TransitionInflater
+import android.util.Log
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
@@ -19,6 +22,7 @@ import com.btryx.yourmoodcalendar.databinding.Calendar2CalendarDayBinding
 import com.btryx.yourmoodcalendar.databinding.FragmentFirstBinding
 import com.btryx.yourmoodcalendar.viewmodel.FirstFragmentViewModel
 import com.kizitonwose.calendar.core.CalendarDay
+import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.view.CalendarView
@@ -93,9 +97,52 @@ class FirstFragment : Fragment() {
                 this.stressedDays = it.stressedDays
                 this.boredDays = it.boredDays
                 setupMonthCalendar(startMonth, endMonth, currentMonth, daysOfWeek)
+                setupMoodCountView(currentMonth)
+                Log.d("calendarData", "Happy days : ${this.happyDays}")
             }
         }
-        viewModel.fetchMoodsByMonth(currentMonth)
+
+
+        binding.fab.setOnClickListener {
+            val scaleAnimation = AnimationUtils.loadAnimation(requireContext(), R.anim.bounce)
+            binding.fab.startAnimation(scaleAnimation)
+            scaleAnimation.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(p0: Animation?) {
+                }
+
+                override fun onAnimationRepeat(p0: Animation?) {
+                }
+
+                override fun onAnimationEnd(p0: Animation?) {
+                    val action = FirstFragmentDirections.actionFirstFragmentToSecondFragment(LocalDate.now())
+                    findNavController().navigate(action)
+                }
+            })
+        }
+
+        viewModel.fetchMoods()
+    }
+
+    private fun setupMoodCountView(month : YearMonth) {
+        //todo: it might be faster to just get it from the database, check this later
+        val moods = listOf(
+            Triple(this.happyDays.count { YearMonth.from(it).equals(month); }, binding.happyCardView, binding.happyCountText),
+            Triple(this.fineDays.count{ YearMonth.from(it).equals(month); }, binding.fineCardView, binding.fineCountText),
+            Triple(this.sadDays.count{ YearMonth.from(it).equals(month); }, binding.sadCardView, binding.sadCountText),
+            Triple(this.boredDays.count{ YearMonth.from(it).equals(month); }, binding.boredCardView, binding.boredCountText),
+            Triple(this.stressedDays.count{ YearMonth.from(it).equals(month); }, binding.tiredCardView, binding.tiredCountText),
+            Triple(this.angryDays.count{ YearMonth.from(it).equals(month); }, binding.angryCardView, binding.angryCountText),
+            Triple(this.confidentDays.count{ YearMonth.from(it).equals(month); }, binding.confidentCardView, binding.confidentCountText)
+        )
+
+        for ((count, cardView, countText) in moods) {
+            if (count > 0) {
+                cardView.visibility = View.VISIBLE
+                countText.text = getString(R.string.days, count.toString(), if (count == 1) "day" else "days")
+            } else {
+                cardView.visibility = View.GONE
+            }
+        }
     }
 
 
@@ -131,11 +178,13 @@ class FirstFragment : Fragment() {
             init {
                 view.setOnClickListener {
                     if (day.position == DayPosition.MonthDate) {
-                        dateClicked(date = day.date)
+                        dateClicked(date = day.date, textView)
+
                     }
                 }
             }
         }
+        Log.d("setupMonthCalendar", "In setupMonthCalendar")
         monthCalendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
             override fun create(view: View) = DayViewContainer(view)
             override fun bind(container: DayViewContainer, data: CalendarDay) {
@@ -143,12 +192,18 @@ class FirstFragment : Fragment() {
                 bindDate(data.date, container.textView, data.position == DayPosition.MonthDate)
             }
         }
-        monthCalendarView.monthScrollListener = { updateTitle() }
+        monthCalendarView.monthScrollListener = { monthScroll(it) }
         monthCalendarView.setup(startMonth, endMonth, daysOfWeek.first())
         monthCalendarView.scrollToMonth(currentMonth)
     }
 
+    private fun monthScroll(calendarMonth: CalendarMonth) {
+        setupMoodCountView(calendarMonth.yearMonth)
+        updateTitle()
+    }
+
     private fun bindDate(date: LocalDate, textView: TextView, isSelectable: Boolean) {
+        Log.d("bindDate", "In binddate")
         textView.text = null
         if (isSelectable) {
             when {
@@ -196,9 +251,27 @@ class FirstFragment : Fragment() {
         binding.exOneMonthText.text = month.month.displayText(short = false)
     }
 
-    private fun dateClicked(date: LocalDate) {
-        val action = FirstFragmentDirections.actionFirstFragmentToSecondFragment(date.toString())
-        findNavController().navigate(action)
+    private fun dateClicked(date: LocalDate, textView: TextView) {
+        viewModel.getMoodForDate(date).observe(viewLifecycleOwner) { mood ->
+            if (mood != null) {
+                val scaleAnimation = AnimationUtils.loadAnimation(requireContext(), R.anim.bounce)
+                textView.startAnimation(scaleAnimation)
+                scaleAnimation.setAnimationListener(object : Animation.AnimationListener {
+                    override fun onAnimationStart(p0: Animation?) {
+                    }
+
+                    override fun onAnimationRepeat(p0: Animation?) {
+                    }
+
+                    override fun onAnimationEnd(p0: Animation?) {
+                        //todo: send the month of the date to secondFragment, so we come back to right month
+                        val action = FirstFragmentDirections.actionFirstFragmentToSecondFragment(date.toString())
+                        findNavController().navigate(action)
+                    }
+                })
+            }
+        }
+
     }
 
     override fun onDestroyView() {

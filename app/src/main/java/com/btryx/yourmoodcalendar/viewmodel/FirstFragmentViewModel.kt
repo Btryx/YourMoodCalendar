@@ -1,5 +1,6 @@
 package com.btryx.yourmoodcalendar.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -7,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.btryx.yourmoodcalendar.database.entities.Mood
 import com.btryx.yourmoodcalendar.database.repository.MoodRepository
+import com.btryx.yourmoodcalendar.utils.TimeUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -62,37 +64,48 @@ class FirstFragmentViewModel @Inject constructor(private val moodRepository: Moo
     }
 
 
-    fun fetchMoodsByMonth(month: YearMonth) {
+    fun fetchMoods() {
+        Log.d("fetchMoodsByMonth", "In fetchMoodsByMonth")
         viewModelScope.launch {
-            val monthString = if (month.monthValue < 10) "0${month.monthValue}" else month.monthValue.toString()
-            val dates = moodRepository.getMoodsByMonthAndType(monthString, Mood.MoodType.HAPPY)
+            val dates = moodRepository.getMoodsByType(Mood.MoodType.HAPPY)
             val happyDates = dates.map { LocalDate.parse(it.day) }
             _happyDays.postValue(happyDates)
 
-            val sadDates = moodRepository.getMoodsByMonthAndType(monthString, Mood.MoodType.SAD)
+            val sadDates = moodRepository.getMoodsByType(Mood.MoodType.SAD)
             val sadDays = sadDates.map { LocalDate.parse(it.day) }
             _sadDays.postValue(sadDays)
 
-            val angryDates = moodRepository.getMoodsByMonthAndType(monthString, Mood.MoodType.ANGRY)
+            val angryDates = moodRepository.getMoodsByType(Mood.MoodType.ANGRY)
             val angryDays = angryDates.map { LocalDate.parse(it.day) }
             _angryDays.postValue(angryDays)
 
-            val boredDates = moodRepository.getMoodsByMonthAndType(monthString, Mood.MoodType.BORED)
+            val boredDates = moodRepository.getMoodsByType(Mood.MoodType.BORED)
             val boredDays = boredDates.map { LocalDate.parse(it.day) }
             _boredDays.postValue(boredDays)
 
-            val fineDates = moodRepository.getMoodsByMonthAndType(monthString, Mood.MoodType.FINE)
+            val fineDates = moodRepository.getMoodsByType(Mood.MoodType.FINE)
             val fineDays = fineDates.map { LocalDate.parse(it.day) }
             _fineDays.postValue(fineDays)
 
-            val stressedDates = moodRepository.getMoodsByMonthAndType(monthString, Mood.MoodType.STRESSED)
-            val stressedDays = stressedDates.map { LocalDate.parse(it.day) }
-            _stressedDays.postValue(stressedDays)
+            val tiredDates = moodRepository.getMoodsByType(Mood.MoodType.STRESSED)
+            val tiredDays = tiredDates.map { LocalDate.parse(it.day) }
+            _stressedDays.postValue(tiredDays)
 
-            val confidentDates = moodRepository.getMoodsByMonthAndType(monthString, Mood.MoodType.CONFIDENT)
+            val confidentDates = moodRepository.getMoodsByType(Mood.MoodType.CONFIDENT)
             val confidentDays = confidentDates.map { LocalDate.parse(it.day) }
             _confidentDays.postValue(confidentDays)
         }
+    }
+
+    fun getMoodForDate(day: LocalDate): LiveData<Mood?> {
+        val result = MutableLiveData<Mood>()
+        val date = TimeUtils.localDateToString(day)
+
+        viewModelScope.launch {
+            val mood = moodRepository.getMoodByDate(date)
+            result.postValue(mood)
+        }
+        return result
     }
 }
 
@@ -102,6 +115,6 @@ data class CalendarData(
     val angryDays: List<LocalDate>?,
     val confidentDays: List<LocalDate>?,
     val fineDays: List<LocalDate>?,
-    val stressedDays: List<LocalDate>?,
+    val tiredDays: List<LocalDate>?,
     val boredDays: List<LocalDate>?,
 )

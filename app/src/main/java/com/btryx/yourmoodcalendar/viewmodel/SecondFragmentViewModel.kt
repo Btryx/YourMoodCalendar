@@ -15,7 +15,6 @@ import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
-
 class SecondFragmentViewModel @Inject constructor(private val moodRepository: MoodRepository): ViewModel()  {
     private val _mood = MutableLiveData<Mood.MoodType>()
     val mood: LiveData<Mood.MoodType> get() = _mood

@@ -54,6 +54,7 @@ dependencies {
     kapt(libs.androidx.room.compiler)
     implementation(libs.hilt.android)
     implementation(libs.material.v1110)
+    implementation (libs.flexbox)
     kapt(libs.hilt.compiler)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)

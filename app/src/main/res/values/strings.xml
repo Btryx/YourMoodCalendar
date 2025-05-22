@@ -18,6 +18,7 @@ This fragment is going to be the calendar made with that calendar library. Each 
     </string>
     <string name="describe_your_emotions">How are you feeling?</string>
     <string name="describe_your_mood">How was your day?</string>
-    <string name="save_mood">Save</string>
+    <string name="save_mood">SAVE</string>
     <string name="how_are_you_today">How are you today?</string>
+    <string name="days">%1$s %2$s</string>
 </resources>

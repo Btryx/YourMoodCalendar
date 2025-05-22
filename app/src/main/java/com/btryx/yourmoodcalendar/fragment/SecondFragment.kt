@@ -8,6 +8,8 @@ import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.ImageView
@@ -15,8 +17,10 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.btryx.yourmoodcalendar.database.entities.Mood
 import com.btryx.yourmoodcalendar.databinding.FragmentSecondBinding
+import com.btryx.yourmoodcalendar.utils.TimeUtils
 import com.btryx.yourmoodcalendar.viewmodel.SecondFragmentViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
@@ -116,6 +120,7 @@ class SecondFragment : Fragment() {
         viewModel.getMoodForDate(date).observe(viewLifecycleOwner) { mood ->
             if (mood != null) {
                 viewModel.setMood(mood.type)
+                viewModel.setDescription(mood.description)
                 (binding.moodInputLayout.editText as? AutoCompleteTextView)?.setText(
                     mood.type.name.lowercase()
                         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }, false
