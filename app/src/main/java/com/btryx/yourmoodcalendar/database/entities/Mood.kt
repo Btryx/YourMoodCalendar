@@ -15,7 +15,7 @@ data class Mood(
         CONFIDENT,
         FINE,
         BORED,
-        TIRED,
+        STRESSED,
         ANGRY,
         SAD,
     }

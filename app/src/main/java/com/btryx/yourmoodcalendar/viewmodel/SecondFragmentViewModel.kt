@@ -15,6 +15,7 @@ import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
+
 class SecondFragmentViewModel @Inject constructor(private val moodRepository: MoodRepository): ViewModel()  {
     private val _mood = MutableLiveData<Mood.MoodType>()
     val mood: LiveData<Mood.MoodType> get() = _mood
@@ -31,11 +32,10 @@ class SecondFragmentViewModel @Inject constructor(private val moodRepository: Mo
         _description.value = desc
     }
 
-    fun createMoodForToday(onCompletion: (() -> Unit)? = null) {
-        val today = LocalDate.now()
-        val date = TimeUtils.localDateToString(today)
+    fun createMoodForDay(date: LocalDate, onCompletion: (() -> Unit)? = null) {
+        val formattedDate = TimeUtils.localDateToString(date)
         val mood = Mood(
-            day = date,
+            day = formattedDate,
             description = description.value ?: "",
             type = mood.value ?: Mood.MoodType.FINE // Set a default if null ( shouldn't happen)
         )
@@ -46,13 +46,12 @@ class SecondFragmentViewModel @Inject constructor(private val moodRepository: Mo
         }
     }
 
-    fun getMoodForToday(): MutableLiveData<Mood> {
+    fun getMoodForDate(date: LocalDate): MutableLiveData<Mood> {
         val result = MutableLiveData<Mood>()
-        val today = LocalDate.now()
-        val date = TimeUtils.localDateToString(today)
+        val formattedDate = TimeUtils.localDateToString(date)
 
         viewModelScope.launch {
-            val mood = moodRepository.getMoodByDate(date)
+            val mood = moodRepository.getMoodByDate(formattedDate)
             result.postValue(mood)
         }
         return result

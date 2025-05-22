@@ -46,7 +46,7 @@ class FirstFragment : Fragment() {
     private var confidentDays: List<LocalDate> = emptyList()
     private var fineDays: List<LocalDate> = emptyList()
     private var boredDays: List<LocalDate> = emptyList()
-    private var tiredDays: List<LocalDate> = emptyList()
+    private var stressedDays: List<LocalDate> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,13 +83,13 @@ class FirstFragment : Fragment() {
 
         viewModel.calendarData.observe(viewLifecycleOwner) {
             if (it.happyDays != null && it.sadDays != null && it.angryDays != null && it.confidentDays != null
-                && it.fineDays != null && it.boredDays != null && it.tiredDays != null) {
+                && it.fineDays != null && it.boredDays != null && it.stressedDays != null) {
                 this.happyDays = it.happyDays
                 this.sadDays = it.sadDays
                 this.angryDays = it.angryDays
                 this.confidentDays = it.confidentDays
                 this.fineDays = it.fineDays
-                this.tiredDays = it.tiredDays
+                this.stressedDays = it.stressedDays
                 this.boredDays = it.boredDays
                 setupMonthCalendar(startMonth, endMonth, currentMonth, daysOfWeek)
             }
@@ -169,8 +169,8 @@ class FirstFragment : Fragment() {
                 boredDays.contains(date) -> {
                     textView.setBackgroundResource(R.drawable.bored)
                 }
-                tiredDays.contains(date) -> {
-                    textView.setBackgroundResource(R.drawable.tired)
+                stressedDays.contains(date) -> {
+                    textView.setBackgroundResource(R.drawable.stressed)
                 }
                 else -> {
                     textView.text = date.dayOfMonth.toString()
@@ -191,7 +191,8 @@ class FirstFragment : Fragment() {
     }
 
     private fun dateClicked(date: LocalDate) {
-        //day was clicked
+        val action = FirstFragmentDirections.actionFirstFragmentToSecondFragment(date.toString())
+        findNavController().navigate(action)
     }
 
     override fun onDestroyView() {

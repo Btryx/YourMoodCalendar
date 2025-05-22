@@ -31,33 +31,33 @@ class FirstFragmentViewModel @Inject constructor(private val moodRepository: Moo
     private val _boredDays = MutableLiveData<List<LocalDate>>()
     val boredDays: LiveData<List<LocalDate>> = _boredDays
 
-    private val _tiredDays = MutableLiveData<List<LocalDate>>()
-    val tiredDays: LiveData<List<LocalDate>> = _tiredDays
+    private val _stressedDays = MutableLiveData<List<LocalDate>>()
+    val stressedDays: LiveData<List<LocalDate>> = _stressedDays
 
     private val _fineDays = MutableLiveData<List<LocalDate>>()
     val fineDays: LiveData<List<LocalDate>> = _fineDays
 
     val calendarData = MediatorLiveData<CalendarData>().apply {
         addSource(_happyDays) { happy ->
-            value = CalendarData(happy, _sadDays.value, _angryDays.value, _confidentDays.value, _fineDays.value, _tiredDays.value,_boredDays.value )
+            value = CalendarData(happy, _sadDays.value, _angryDays.value, _confidentDays.value, _fineDays.value, _stressedDays.value,_boredDays.value )
         }
         addSource(_sadDays) { sad ->
-            value = CalendarData(_happyDays.value, sad, _angryDays.value, _confidentDays.value, _fineDays.value, _tiredDays.value, _boredDays.value )
+            value = CalendarData(_happyDays.value, sad, _angryDays.value, _confidentDays.value, _fineDays.value, _stressedDays.value, _boredDays.value )
         }
         addSource(_angryDays) { angry ->
-            value = CalendarData(_happyDays.value, _sadDays.value, angry, _confidentDays.value, _fineDays.value, _tiredDays.value, _boredDays.value )
+            value = CalendarData(_happyDays.value, _sadDays.value, angry, _confidentDays.value, _fineDays.value, _stressedDays.value, _boredDays.value )
         }
         addSource(_confidentDays) { confident ->
-            value = CalendarData(_happyDays.value, _sadDays.value, _angryDays.value, confident, _fineDays.value, _tiredDays.value, _boredDays.value )
+            value = CalendarData(_happyDays.value, _sadDays.value, _angryDays.value, confident, _fineDays.value, _stressedDays.value, _boredDays.value )
         }
         addSource(_fineDays) { fine ->
-            value = CalendarData(_happyDays.value, _sadDays.value, _angryDays.value, _confidentDays.value, fine, _tiredDays.value, _boredDays.value )
+            value = CalendarData(_happyDays.value, _sadDays.value, _angryDays.value, _confidentDays.value, fine, _stressedDays.value, _boredDays.value )
         }
-        addSource(_tiredDays) { tired ->
-            value = CalendarData(_happyDays.value, _sadDays.value, _angryDays.value, _confidentDays.value, _fineDays.value, tired, _boredDays.value )
+        addSource(_stressedDays) { stressed ->
+            value = CalendarData(_happyDays.value, _sadDays.value, _angryDays.value, _confidentDays.value, _fineDays.value, stressed, _boredDays.value )
         }
         addSource(_boredDays) { bored ->
-            value = CalendarData(_happyDays.value, _sadDays.value, _angryDays.value, _confidentDays.value, _fineDays.value, _tiredDays.value, bored )
+            value = CalendarData(_happyDays.value, _sadDays.value, _angryDays.value, _confidentDays.value, _fineDays.value, _stressedDays.value, bored )
         }
     }
 
@@ -85,9 +85,9 @@ class FirstFragmentViewModel @Inject constructor(private val moodRepository: Moo
             val fineDays = fineDates.map { LocalDate.parse(it.day) }
             _fineDays.postValue(fineDays)
 
-            val tiredDates = moodRepository.getMoodsByMonthAndType(monthString, Mood.MoodType.TIRED)
-            val tiredDays = tiredDates.map { LocalDate.parse(it.day) }
-            _tiredDays.postValue(tiredDays)
+            val stressedDates = moodRepository.getMoodsByMonthAndType(monthString, Mood.MoodType.STRESSED)
+            val stressedDays = stressedDates.map { LocalDate.parse(it.day) }
+            _stressedDays.postValue(stressedDays)
 
             val confidentDates = moodRepository.getMoodsByMonthAndType(monthString, Mood.MoodType.CONFIDENT)
             val confidentDays = confidentDates.map { LocalDate.parse(it.day) }
@@ -102,6 +102,6 @@ data class CalendarData(
     val angryDays: List<LocalDate>?,
     val confidentDays: List<LocalDate>?,
     val fineDays: List<LocalDate>?,
-    val tiredDays: List<LocalDate>?,
+    val stressedDays: List<LocalDate>?,
     val boredDays: List<LocalDate>?,
 )

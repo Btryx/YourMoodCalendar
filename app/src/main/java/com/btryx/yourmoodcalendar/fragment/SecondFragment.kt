@@ -19,7 +19,7 @@ import com.btryx.yourmoodcalendar.database.entities.Mood
 import com.btryx.yourmoodcalendar.databinding.FragmentSecondBinding
 import com.btryx.yourmoodcalendar.viewmodel.SecondFragmentViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import java.time.YearMonth
+import java.time.LocalDate
 import java.util.Locale
 
 @AndroidEntryPoint
@@ -46,10 +46,17 @@ class SecondFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val dateStr = arguments?.getString("date") ?: LocalDate.now().toString()
+        val date = LocalDate.parse(dateStr)
+
+        if (!arguments?.getString("date").isNullOrEmpty()) {
+            binding.dialogTitle.text = dateStr
+        }
+
         setupMoodDropdown()
         setupDescriptionListener()
-        setupSaveButton()
-        observeMoodData()
+        setupSaveButton(date)
+        observeMoodData(date)
     }
 
     private fun setupMoodDropdown() {
@@ -93,10 +100,10 @@ class SecondFragment : Fragment() {
         })
     }
 
-    private fun setupSaveButton() {
+    private fun setupSaveButton(date: LocalDate) {
         binding.buttonSave.setOnClickListener {
             if (validateInput()) {
-                viewModel.createMoodForToday {
+                viewModel.createMoodForDay(date) {
                     requireActivity().runOnUiThread {
                         findNavController().navigateUp()
                     }
@@ -105,9 +112,10 @@ class SecondFragment : Fragment() {
         }
     }
 
-    private fun observeMoodData() {
-        viewModel.getMoodForToday().observe(viewLifecycleOwner) { mood ->
+    private fun observeMoodData(date: LocalDate) {
+        viewModel.getMoodForDate(date).observe(viewLifecycleOwner) { mood ->
             if (mood != null) {
+                viewModel.setMood(mood.type)
                 (binding.moodInputLayout.editText as? AutoCompleteTextView)?.setText(
                     mood.type.name.lowercase()
                         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }, false
@@ -143,10 +151,9 @@ class SecondFragment : Fragment() {
     }
 
     //Gets the label for each emotion. Format: MoodType.EMOTION -> Emotion
-    fun Mood.MoodType.toLabel(): String {
+    private fun Mood.MoodType.toLabel(): String {
         val drawableName = name.lowercase()
             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
-
         return try {
             drawableName
         } catch (e: Exception) {
