@@ -49,7 +49,7 @@ class SecondFragment : Fragment() {
         val dateStr = arguments?.getString("date") ?: LocalDate.now().toString()
         val date = LocalDate.parse(dateStr)
 
-        if (!arguments?.getString("date").isNullOrEmpty()) {
+        if (arguments?.getString("date") != LocalDate.now().toString()) {
             binding.dialogTitle.text = dateStr
         }
 
