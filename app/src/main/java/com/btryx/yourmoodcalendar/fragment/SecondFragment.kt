@@ -17,10 +17,8 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import com.btryx.yourmoodcalendar.database.entities.Mood
 import com.btryx.yourmoodcalendar.databinding.FragmentSecondBinding
-import com.btryx.yourmoodcalendar.utils.TimeUtils
 import com.btryx.yourmoodcalendar.viewmodel.SecondFragmentViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate

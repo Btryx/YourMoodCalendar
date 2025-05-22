@@ -309,13 +309,13 @@
                             android:layout_margin="5dp"
                             android:adjustViewBounds="true"
                             android:scaleType="centerCrop"
-                            android:src="@drawable/tired" />
+                            android:src="@drawable/stressed" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_margin="5dp"
-                            android:text="Tired"
+                            android:text="Stressed"
                             android:textAlignment="center"
                             android:textSize="14sp" />
 

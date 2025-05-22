@@ -114,7 +114,7 @@ class FirstFragment : Fragment() {
                 }
 
                 override fun onAnimationEnd(p0: Animation?) {
-                    val action = FirstFragmentDirections.actionFirstFragmentToSecondFragment(LocalDate.now())
+                    val action = FirstFragmentDirections.actionFirstFragmentToSecondFragment(LocalDate.now().toString())
                     findNavController().navigate(action)
                 }
             })

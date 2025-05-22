@@ -87,9 +87,9 @@ class FirstFragmentViewModel @Inject constructor(private val moodRepository: Moo
             val fineDays = fineDates.map { LocalDate.parse(it.day) }
             _fineDays.postValue(fineDays)
 
-            val tiredDates = moodRepository.getMoodsByType(Mood.MoodType.STRESSED)
-            val tiredDays = tiredDates.map { LocalDate.parse(it.day) }
-            _stressedDays.postValue(tiredDays)
+            val stressedDates = moodRepository.getMoodsByType(Mood.MoodType.STRESSED)
+            val stressedDays = stressedDates.map { LocalDate.parse(it.day) }
+            _stressedDays.postValue(stressedDays)
 
             val confidentDates = moodRepository.getMoodsByType(Mood.MoodType.CONFIDENT)
             val confidentDays = confidentDates.map { LocalDate.parse(it.day) }
@@ -115,6 +115,6 @@ data class CalendarData(
     val angryDays: List<LocalDate>?,
     val confidentDays: List<LocalDate>?,
     val fineDays: List<LocalDate>?,
-    val tiredDays: List<LocalDate>?,
+    val stressedDays: List<LocalDate>?,
     val boredDays: List<LocalDate>?,
 )
