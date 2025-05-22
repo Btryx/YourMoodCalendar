@@ -174,7 +174,12 @@ class FirstFragment : Fragment() {
                 }
                 else -> {
                     textView.text = date.dayOfMonth.toString()
-                    textView.setBackgroundResource(R.drawable.nothing)
+                    if(date == LocalDate.now()) {
+                        textView.setBackgroundResource(R.drawable.today)
+                    } else {
+                        textView.setBackgroundResource(R.drawable.nothing)
+                    }
+
                 }
             }
         } else {
